@@ -16,7 +16,7 @@ export default function LoginPage() {
   const [mode, setMode] = useState<"signin" | "signup">("signin");
   const router = useRouter();
 
-  // If already logged in → redirect
+  // Redirect if logged in
   useEffect(() => {
     supabase.auth.getUser().then(({ data }) => {
       if (data?.user) router.push("/tasks");
@@ -32,54 +32,56 @@ export default function LoginPage() {
         password: values.password,
       });
 
-      if (error) {
-        alert(error.message);
-      } else {
-        router.push("/tasks");
-      }
+      if (error) alert(error.message);
+      else router.push("/tasks");
     } else {
       const { error } = await supabase.auth.signUp({
         email: values.email,
         password: values.password,
       });
 
-      if (error) {
-        alert(error.message);
-      } else {
-        alert("Account created! Please check your email to confirm (if required).");
-      }
+      if (error) alert(error.message);
+      else alert(
+        "Account created! Please check your email to confirm (if required)."
+      );
     }
 
     setLoading(false);
   });
 
   return (
-    <div className="flex justify-center mt-16">
-      <div className="bg-white p-6 rounded-lg shadow-md w-full max-w-md">
-        <h2 className="text-2xl font-semibold mb-4">
-          {mode === "signin" ? "Sign In" : "Create Account"}
+    <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-gray-900 dark:to-gray-800 px-4">
+      <div className="bg-white dark:bg-gray-800 p-8 rounded-2xl shadow-xl w-full max-w-md transition-all">
+        <h2 className="text-3xl font-bold mb-6 text-gray-900 dark:text-gray-100 text-center">
+          {mode === "signin" ? "Welcome Back" : "Create Account"}
         </h2>
 
-        <form onSubmit={onSubmit} className="space-y-4">
+        <form onSubmit={onSubmit} className="space-y-5">
           {/* Email */}
           <div>
-            <label className="block text-sm font-medium">Email</label>
+            <label className="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-200">
+              Email
+            </label>
             <input
               {...register("email")}
               type="email"
               required
-              className="mt-1 block w-full border rounded p-2"
+              placeholder="you@example.com"
+              className="w-full p-3 border border-gray-300 dark:border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-gray-100 transition"
             />
           </div>
 
           {/* Password */}
           <div>
-            <label className="block text-sm font-medium">Password</label>
+            <label className="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-200">
+              Password
+            </label>
             <input
               {...register("password")}
               type="password"
               required
-              className="mt-1 block w-full border rounded p-2"
+              placeholder="••••••••"
+              className="w-full p-3 border border-gray-300 dark:border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-gray-100 transition"
             />
           </div>
 
@@ -87,24 +89,24 @@ export default function LoginPage() {
           <button
             type="submit"
             disabled={loading}
-            className="w-full py-2 rounded bg-blue-600 text-white"
+            className="w-full py-3 bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white font-semibold rounded-lg shadow-md transition disabled:opacity-70 disabled:cursor-not-allowed"
           >
             {loading
               ? "Please wait..."
               : mode === "signin"
-                ? "Sign In"
-                : "Sign Up"}
+              ? "Sign In"
+              : "Sign Up"}
           </button>
         </form>
 
         {/* Switch mode */}
-        <p className="mt-4 text-sm text-center">
+        <p className="mt-6 text-center text-sm text-gray-600 dark:text-gray-400">
           {mode === "signin" ? (
             <>
               Don&apos;t have an account?{" "}
               <button
                 onClick={() => setMode("signup")}
-                className="text-blue-600 underline"
+                className="text-blue-600 hover:text-blue-500 font-medium"
               >
                 Sign up
               </button>
@@ -114,7 +116,7 @@ export default function LoginPage() {
               Already have an account?{" "}
               <button
                 onClick={() => setMode("signin")}
-                className="text-blue-600 underline"
+                className="text-blue-600 hover:text-blue-500 font-medium"
               >
                 Sign in
               </button>
