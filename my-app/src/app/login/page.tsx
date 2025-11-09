@@ -14,6 +14,8 @@ export default function LoginPage() {
   const { register, handleSubmit } = useForm<FormData>();
   const [loading, setLoading] = useState(false);
   const [mode, setMode] = useState<"signin" | "signup">("signin");
+  const [alert, setAlert] = useState<{ type: "success" | "error"; message: string } | null>(null);
+
   const router = useRouter();
 
   // Redirect if logged in
@@ -22,6 +24,14 @@ export default function LoginPage() {
       if (data?.user) router.push("/tasks");
     });
   }, [router]);
+
+  // Auto-hide alert
+  useEffect(() => {
+    if (alert) {
+      const timer = setTimeout(() => setAlert(null), 3000);
+      return () => clearTimeout(timer);
+    }
+  }, [alert]);
 
   const onSubmit = handleSubmit(async (values) => {
     setLoading(true);
@@ -32,25 +42,44 @@ export default function LoginPage() {
         password: values.password,
       });
 
-      if (error) alert(error.message);
-      else router.push("/tasks");
+      if (error) {
+        setAlert({ type: "error", message: error.message });
+      } else {
+        setAlert({ type: "success", message: "Login successful! Redirecting..." });
+        router.push("/tasks");
+      }
     } else {
       const { error } = await supabase.auth.signUp({
         email: values.email,
         password: values.password,
       });
 
-      if (error) alert(error.message);
-      else alert(
-        "Account created! Please check your email to confirm (if required)."
-      );
+      if (error) {
+        setAlert({ type: "error", message: error.message });
+      } else {
+        setAlert({
+          type: "success",
+          message: "Account created! Please check your email to confirm.",
+        });
+      }
     }
 
     setLoading(false);
   });
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-gray-900 dark:to-gray-800 px-4">
+    <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-gray-900 dark:to-gray-800 px-4 relative">
+
+      {/* ✅ Modern Animated Alert */}
+      {alert && (
+        <div
+          className={`fixed top-6 z-50 px-5 py-3 rounded-xl shadow-lg text-white text-sm font-medium animate-in fade-in zoom-in slide-in-from-top-3 
+            ${alert.type === "success" ? "bg-green-600" : "bg-red-600"}`}
+        >
+          {alert.message}
+        </div>
+      )}
+
       <div className="bg-white dark:bg-gray-800 p-8 rounded-2xl shadow-xl w-full max-w-md transition-all">
         <h2 className="text-3xl font-bold mb-6 text-gray-900 dark:text-gray-100 text-center">
           {mode === "signin" ? "Welcome Back" : "Create Account"}
@@ -67,7 +96,7 @@ export default function LoginPage() {
               type="email"
               required
               placeholder="you@example.com"
-              className="w-full p-3 border border-gray-300 dark:border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-gray-100 transition"
+              className="w-full p-3 border border-gray-300 dark:border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-gray-100 transition"
             />
           </div>
 
@@ -81,7 +110,7 @@ export default function LoginPage() {
               type="password"
               required
               placeholder="••••••••"
-              className="w-full p-3 border border-gray-300 dark:border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-gray-100 transition"
+              className="w-full p-3 border border-gray-300 dark:border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-gray-100 transition"
             />
           </div>
 
